@@ -6,28 +6,62 @@ public class BankApp {
     private static final Scanner scanner = new Scanner(System.in);
     private static final UserDAO userDAO = new UserDAO();
     private static final AccountDAO accountDAO = new AccountDAO();
+    private static final TransactionService transactionService = new TransactionService(accountDAO);
+
+    private static int loggedInUserId = -1;
+    private static int userAccountId = -1;
 
     public static void main(String[] args) {
-        System.out.println("--- User Management ---");
-        System.out.println("1. Register User");
-        System.out.println("2. Login User");
-        System.out.println("3. Delete User");
-        System.out.print("Choose an option: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        while (true) {
+            if (loggedInUserId == -1) {
+                // Main menu before logging in
+                System.out.println("--- Main Menu ---");
+                System.out.println("1. Register User");
+                System.out.println("2. Login User");
+                System.out.print("Choose an option: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine();
 
-        switch (choice) {
-            case 1:
-                registerUser();
-                break;
-            case 2:
-                loginUser();
-                break;
-            case 3:
-                deleteUser();
-                break;
-            default:
-                System.out.println("Invalid choice.");
+                switch (choice) {
+                    case 1:
+                        registerUser();
+                        break;
+                    case 2:
+                        loginUser();
+                        break;
+                    default:
+                        System.out.println("Invalid choice.");
+                        break;
+                }
+            } else {
+                // Main menu after logging in
+                System.out.println("--- Account Management ---");
+                System.out.println("1. Deposit Money");
+                System.out.println("2. Withdraw Money");
+                System.out.println("3. Check Balance");
+                System.out.println("4. Logout");
+                System.out.print("Choose an option: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (choice) {
+                    case 1:
+                        depositMoney();
+                        break;
+                    case 2:
+                        withdrawMoney();
+                        break;
+                    case 3:
+                        checkBalance();
+                        break;
+                    case 4:
+                        logout();
+                        break;
+                    default:
+                        System.out.println("Invalid choice.");
+                        break;
+                }
+            }
         }
     }
 
@@ -52,70 +86,20 @@ public class BankApp {
 
         if (userDAO.loginUser(username, password)) {
             System.out.println("Login successful! Welcome, " + username + "!");
-            manageAccount();
+            loggedInUserId = userDAO.getUserId(username);
+            userAccountId = accountDAO.getAccountIdByUserId(loggedInUserId);
+            if (userAccountId != -1) {
+                System.out.println("Your account ID is: " + userAccountId);
+            }
         } else {
             System.out.println("Invalid username or password.");
         }
     }
 
-    private static void deleteUser() {
-        System.out.print("Enter user ID to delete: ");
-        int userId = scanner.nextInt();
-        if (userDAO.deleteUser(userId)) {
-            System.out.println("User deleted successfully!");
-        } else {
-            System.out.println("User deletion failed.");
-        }
-    }
-
-    private static void manageAccount() {
-        System.out.println("--- Account Management ---");
-        System.out.println("1. Create Account");
-        System.out.println("2. Deposit Money");
-        System.out.println("3. Withdraw Money");
-        System.out.println("4. Check Balance");
-        System.out.println("5. Delete Account");
-        System.out.print("Choose an option: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
-
-        switch (choice) {
-            case 1:
-                createAccount();
-                break;
-            case 2:
-                depositMoney();
-                break;
-            case 3:
-                withdrawMoney();
-                break;
-            case 4:
-                checkBalance();
-                break;
-            case 5:
-                deleteAccount();
-                break;
-            default:
-                System.out.println("Invalid choice.");
-        }
-    }
-
-    private static void createAccount() {
-        System.out.print("Enter your user ID: ");
-        int userId = scanner.nextInt();
-        if (accountDAO.createAccount(userId)) {
-            System.out.println("Account created successfully!");
-        } else {
-            System.out.println("Account creation failed.");
-        }
-    }
-
     private static void depositMoney() {
-        System.out.print("Enter account ID: ");
-        int accountId = scanner.nextInt();
         System.out.print("Enter amount to deposit: ");
         double amount = scanner.nextDouble();
-        if (accountDAO.deposit(accountId, amount)) {
+        if (transactionService.processDeposit(userAccountId, amount)) {
             System.out.println("Deposit successful and transaction recorded!");
         } else {
             System.out.println("Deposit failed.");
@@ -123,11 +107,9 @@ public class BankApp {
     }
 
     private static void withdrawMoney() {
-        System.out.print("Enter account ID: ");
-        int accountId = scanner.nextInt();
         System.out.print("Enter amount to withdraw: ");
         double amount = scanner.nextDouble();
-        if (accountDAO.withdraw(accountId, amount)) {
+        if (transactionService.processWithdrawal(userAccountId, amount)) {
             System.out.println("Withdrawal successful and transaction recorded!");
         } else {
             System.out.println("Withdrawal failed.");
@@ -135,9 +117,7 @@ public class BankApp {
     }
 
     private static void checkBalance() {
-        System.out.print("Enter account ID: ");
-        int accountId = scanner.nextInt();
-        double balance = accountDAO.checkBalance(accountId);
+        double balance = accountDAO.checkBalance(userAccountId);
         if (balance != -1) {
             System.out.println("Your balance is: $" + balance);
         } else {
@@ -145,13 +125,9 @@ public class BankApp {
         }
     }
 
-    private static void deleteAccount() {
-        System.out.print("Enter account ID to delete: ");
-        int accountId = scanner.nextInt();
-        if (accountDAO.deleteAccount(accountId)) {
-            System.out.println("Account deleted successfully!");
-        } else {
-            System.out.println("Account deletion failed.");
-        }
+    private static void logout() {
+        System.out.println("Logging out...");
+        loggedInUserId = -1;
+        userAccountId = -1;
     }
 }
