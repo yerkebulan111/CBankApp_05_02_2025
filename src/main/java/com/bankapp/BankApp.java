@@ -8,26 +8,32 @@ public class BankApp {
     private static final AccountDAO accountDAO = new AccountDAO();
 
     public static void main(String[] args) {
-        System.out.println("--- User Management ---");
-        System.out.println("1. Register User");
-        System.out.println("2. Login User");
-        System.out.println("3. Delete User");
-        System.out.print("Choose an option: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        while (true) {
+            System.out.println("--- User Management ---");
+            System.out.println("1. Register User");
+            System.out.println("2. Login User");
+            System.out.println("3. Delete User");
+            System.out.println("4. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
 
-        switch (choice) {
-            case 1:
-                registerUser();
-                break;
-            case 2:
-                loginUser();
-                break;
-            case 3:
-                deleteUser();
-                break;
-            default:
-                System.out.println("Invalid choice.");
+            switch (choice) {
+                case 1:
+                    registerUser();
+                    break;
+                case 2:
+                    loginUser();
+                    break;
+                case 3:
+                    deleteUser();
+                    break;
+                case 4:
+                    System.out.println("Goodbye!");
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
     }
 
@@ -69,34 +75,39 @@ public class BankApp {
     }
 
     private static void manageAccount() {
-        System.out.println("--- Account Management ---");
-        System.out.println("1. Create Account");
-        System.out.println("2. Deposit Money");
-        System.out.println("3. Withdraw Money");
-        System.out.println("4. Check Balance");
-        System.out.println("5. Delete Account");
-        System.out.print("Choose an option: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        while (true) {
+            System.out.println("--- Account Management ---");
+            System.out.println("1. Create Account");
+            System.out.println("2. Deposit Money");
+            System.out.println("3. Withdraw Money");
+            System.out.println("4. Check Balance");
+            System.out.println("5. Delete Account");
+            System.out.println("6. Back to Main Menu");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
 
-        switch (choice) {
-            case 1:
-                createAccount();
-                break;
-            case 2:
-                depositMoney();
-                break;
-            case 3:
-                withdrawMoney();
-                break;
-            case 4:
-                checkBalance();
-                break;
-            case 5:
-                deleteAccount();
-                break;
-            default:
-                System.out.println("Invalid choice.");
+            switch (choice) {
+                case 1:
+                    createAccount();
+                    break;
+                case 2:
+                    depositMoney();
+                    break;
+                case 3:
+                    withdrawMoney();
+                    break;
+                case 4:
+                    checkBalance();
+                    break;
+                case 5:
+                    deleteAccount();
+                    break;
+                case 6:
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
     }
 
