@@ -53,6 +53,7 @@ public class AccountDAO {
         } catch (SQLException e) {
             System.out.println("Error while checking balance: " + e.getMessage());
         }
+
         return -1;  // if account not found
     }
 
