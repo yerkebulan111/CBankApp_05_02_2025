@@ -35,7 +35,8 @@ public class AccountDAO {
         } catch (SQLException e) {
             System.out.println("Error while fetching account ID: " + e.getMessage());
         }
-        return -1;  // if account not found for the user
+
+        return -1;
     }
 
 
@@ -53,7 +54,8 @@ public class AccountDAO {
         } catch (SQLException e) {
             System.out.println("Error while checking balance: " + e.getMessage());
         }
-        return -1;  // if account not found
+
+        return -1;
     }
 
 

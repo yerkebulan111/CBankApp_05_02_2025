@@ -20,13 +20,11 @@ public class TransactionService {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
 
-
             try (PreparedStatement stmt = conn.prepareStatement(updateAccountSql)) {
                 stmt.setDouble(1, amount);
                 stmt.setInt(2, accountId);
                 stmt.executeUpdate();
             }
-
 
             try (PreparedStatement stmt = conn.prepareStatement(insertTransactionSql)) {
                 stmt.setInt(1, accountId);
@@ -51,7 +49,6 @@ public class TransactionService {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
 
-
             try (PreparedStatement stmt = conn.prepareStatement(updateAccountSql)) {
                 stmt.setDouble(1, amount);
                 stmt.setInt(2, accountId);
@@ -62,7 +59,6 @@ public class TransactionService {
                     return false;
                 }
             }
-
 
             try (PreparedStatement stmt = conn.prepareStatement(insertTransactionSql)) {
                 stmt.setInt(1, accountId);
