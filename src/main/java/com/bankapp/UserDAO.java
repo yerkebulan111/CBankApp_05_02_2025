@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDAO {
-    private AccountDAO accountDAO = new AccountDAO();  // Create instance of AccountDAO
+    private AccountDAO accountDAO = new AccountDAO();
 
     public boolean registerUser(String username, String password) {
         String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
@@ -17,15 +17,14 @@ public class UserDAO {
             stmt.setString(2, password);
             stmt.executeUpdate();
 
-            // After the user is registered, create an account for the user
+            // create an account for the user
             String getUserIdSql = "SELECT id FROM users WHERE username = ?";
             try (PreparedStatement userStmt = conn.prepareStatement(getUserIdSql)) {
                 userStmt.setString(1, username);
                 ResultSet rs = userStmt.executeQuery();
                 if (rs.next()) {
                     int userId = rs.getInt("id");
-                    // Create an account for the user with initial balance 0
-                    return accountDAO.createAccount(userId);  // Create account
+                    return accountDAO.createAccount(userId);
                 }
             }
         } catch (SQLException e) {

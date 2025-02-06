@@ -14,7 +14,6 @@ public class BankApp {
     public static void main(String[] args) {
         while (true) {
             if (loggedInUserId == -1) {
-                // Main menu before logging in
                 System.out.println("--- Main Menu ---");
                 System.out.println("1. Register User");
                 System.out.println("2. Login User");
@@ -34,12 +33,12 @@ public class BankApp {
                         break;
                 }
             } else {
-                // Main menu after logging in
                 System.out.println("--- Account Management ---");
                 System.out.println("1. Deposit Money");
                 System.out.println("2. Withdraw Money");
                 System.out.println("3. Check Balance");
-                System.out.println("4. Logout");
+                System.out.println("4. Transfer Money");
+                System.out.println("5. Logout");
                 System.out.print("Choose an option: ");
                 int choice = scanner.nextInt();
                 scanner.nextLine();
@@ -55,6 +54,9 @@ public class BankApp {
                         checkBalance();
                         break;
                     case 4:
+                        transferMoney();
+                        break;
+                    case 5:
                         logout();
                         break;
                     default:
@@ -122,6 +124,19 @@ public class BankApp {
             System.out.println("Your balance is: $" + balance);
         } else {
             System.out.println("Account not found.");
+        }
+    }
+
+    private static void transferMoney() {
+        System.out.print("Enter receiver's username: ");
+        String receiverUsername = scanner.nextLine();
+        System.out.print("Enter amount to transfer: ");
+        double amount = scanner.nextDouble();
+
+        if (transactionService.transferMoney(userAccountId, receiverUsername, amount)) {
+            System.out.println("Transfer successful!");
+        } else {
+            System.out.println("Transfer failed.");
         }
     }
 

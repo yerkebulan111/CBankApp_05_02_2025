@@ -8,7 +8,7 @@ import java.sql.SQLException;
 public class AccountDAO {
 
     public boolean createAccount(int userId) {
-        String sql = "INSERT INTO accounts (user_id, balance, account_type) VALUES (?, 0, 'debit')";  // Setting default account_type as 'debit'
+        String sql = "INSERT INTO accounts (user_id, balance, account_type) VALUES (?, 0, 'debit')";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
@@ -26,16 +26,16 @@ public class AccountDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, userId);  // Correct use of parameter index
+            stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return rs.getInt("id");  // Retrieve account ID
+                return rs.getInt("id");
             }
         } catch (SQLException e) {
             System.out.println("Error while fetching account ID: " + e.getMessage());
         }
-        return -1;  // Return -1 if no account found for the user
+        return -1;  // if account not found for the user
     }
 
 
@@ -44,16 +44,16 @@ public class AccountDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, accountId);  // Correct use of parameter index
+            stmt.setInt(1, accountId);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return rs.getDouble("balance");  // Return balance
+                return rs.getDouble("balance");
             }
         } catch (SQLException e) {
             System.out.println("Error while checking balance: " + e.getMessage());
         }
-        return -1;  // Return -1 if account not found
+        return -1;  // if account not found
     }
 
 
