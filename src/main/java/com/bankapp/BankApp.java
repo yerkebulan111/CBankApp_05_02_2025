@@ -14,7 +14,6 @@ public class BankApp {
     public static void main(String[] args) {
         while (true) {
             if (loggedInUserId == -1) {
-                // Main menu before logging in
                 System.out.println("--- Main Menu ---");
                 System.out.println("1. Register User");
                 System.out.println("2. Login User");
@@ -34,27 +33,34 @@ public class BankApp {
                         break;
                 }
             } else {
-                // Main menu after logging in
                 System.out.println("--- Account Management ---");
-                System.out.println("1. Deposit Money");
-                System.out.println("2. Withdraw Money");
+                System.out.println("1. Replenishment of debit account");
+                System.out.println("2. Transfer money to another user");
                 System.out.println("3. Check Balance");
-                System.out.println("4. Logout");
+                System.out.println("4. Credit");
+                System.out.println("5. Deposit");
+                System.out.println("6. Logout");
                 System.out.print("Choose an option: ");
                 int choice = scanner.nextInt();
                 scanner.nextLine();
 
                 switch (choice) {
                     case 1:
-                        depositMoney();
+                        replenishAccount();
                         break;
                     case 2:
-                        withdrawMoney();
+                        transferMoney();
                         break;
                     case 3:
                         checkBalance();
                         break;
                     case 4:
+                        handleCredit();
+                        break;
+                    case 5:
+                        handleDeposit();
+                        break;
+                    case 6:
                         logout();
                         break;
                     default:
@@ -72,9 +78,9 @@ public class BankApp {
         String password = scanner.nextLine();
 
         if (userDAO.registerUser(username, password)) {
-            System.out.println("User registered successfully!");
+            System.out.println("User registered successfully.");
         } else {
-            System.out.println("Registration failed.");
+            System.out.println("User registration failed.");
         }
     }
 
@@ -84,50 +90,95 @@ public class BankApp {
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        if (userDAO.loginUser(username, password)) {
-            System.out.println("Login successful! Welcome, " + username + "!");
-            loggedInUserId = userDAO.getUserId(username);
+        loggedInUserId = userDAO.loginUser(username, password);
+
+        if (loggedInUserId != -1) {
+            System.out.println("Login successful.");
             userAccountId = accountDAO.getAccountIdByUserId(loggedInUserId);
-            if (userAccountId != -1) {
-                System.out.println("Your account ID is: " + userAccountId);
+            if (userAccountId == -1) {
+                accountDAO.createAccount(loggedInUserId);
+                userAccountId = accountDAO.getAccountIdByUserId(loggedInUserId);
             }
         } else {
             System.out.println("Invalid username or password.");
         }
     }
 
-    private static void depositMoney() {
+    private static void replenishAccount() {
         System.out.print("Enter amount to deposit: ");
         double amount = scanner.nextDouble();
         if (transactionService.processDeposit(userAccountId, amount)) {
-            System.out.println("Deposit successful and transaction recorded!");
+            System.out.println("Amount deposited successfully.");
         } else {
             System.out.println("Deposit failed.");
         }
     }
 
-    private static void withdrawMoney() {
-        System.out.print("Enter amount to withdraw: ");
+    private static void transferMoney() {
+        System.out.print("Enter recipient username: ");
+        String recipientUsername = scanner.nextLine();
+        System.out.print("Enter amount to transfer: ");
         double amount = scanner.nextDouble();
-        if (transactionService.processWithdrawal(userAccountId, amount)) {
-            System.out.println("Withdrawal successful and transaction recorded!");
+        if (accountDAO.checkBalance(userAccountId) < amount) {
+            System.out.println("Insufficient balance.");
+            return;
+        }
+        if (transactionService.transferMoney(userAccountId, recipientUsername, amount)) {
+            System.out.println("Transfer successful.");
         } else {
-            System.out.println("Withdrawal failed.");
+            System.out.println("Transfer failed.");
         }
     }
 
     private static void checkBalance() {
         double balance = accountDAO.checkBalance(userAccountId);
-        if (balance != -1) {
-            System.out.println("Your balance is: $" + balance);
-        } else {
-            System.out.println("Account not found.");
+        System.out.println("Your balance is: " + balance + " ₸");
+    }
+
+    private static void handleCredit() {
+        System.out.println("1. Check credit conditions");
+        System.out.println("2. Apply for credit");
+        System.out.print("Choose an option: ");
+        int creditChoice = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (creditChoice) {
+            case 1:
+                System.out.println("Check credit conditions");
+                break;
+            case 2:
+                System.out.println("Applying for credit");
+                break;
+            default:
+                System.out.println("Invalid choice.");
+                break;
+        }
+    }
+
+    private static void handleDeposit() {
+        System.out.println("1. Open a deposit account");
+        System.out.println("2. View deposit balance");
+        System.out.print("Choose an option: ");
+        int depositChoice = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (depositChoice) {
+            case 1:
+                System.out.println("Opening a deposit account");
+                break;
+            case 2:
+                double depositBalance = accountDAO.checkDepositBalance(userAccountId);
+                System.out.println("Deposit balance: " + depositBalance + " ₸");
+                break;
+            default:
+                System.out.println("Invalid choice.");
+                break;
         }
     }
 
     private static void logout() {
-        System.out.println("Logging out...");
         loggedInUserId = -1;
         userAccountId = -1;
+        System.out.println("Logged out successfully.");
     }
 }

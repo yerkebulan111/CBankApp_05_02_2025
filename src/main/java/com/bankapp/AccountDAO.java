@@ -1,101 +1,111 @@
 package com.bankapp;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class AccountDAO {
 
-    public boolean createAccount(int userId) {
-        String sql = "INSERT INTO accounts (user_id, balance, account_type) VALUES (?, 0, 'debit')";  // Setting default account_type as 'debit'
+    public int getAccountIdByUserId(int userId) {
+        String sql = "SELECT account_id FROM accounts WHERE user_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
-            stmt.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            System.out.println("Error while creating account: " + e.getMessage());
-            return false;
-        }
-    }
-
-
-    public int getAccountIdByUserId(int userId) {
-        String sql = "SELECT id FROM accounts WHERE user_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, userId);  // Correct use of parameter index
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt("id");  // Retrieve account ID
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("account_id");
+                }
             }
         } catch (SQLException e) {
-            System.out.println("Error while fetching account ID: " + e.getMessage());
+            System.err.println("Error retrieving account ID: " + e.getMessage());
         }
-        return -1;  // Return -1 if no account found for the user
+        return -1;
     }
 
-
-    public double checkBalance(int accountId) {
-        String sql = "SELECT balance FROM accounts WHERE id = ?";
+    public boolean createAccount(int userId) {
+        String sql = "INSERT INTO accounts (user_id, balance) VALUES (?, 0)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, accountId);  // Correct use of parameter index
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getDouble("balance");  // Return balance
-            }
-        } catch (SQLException e) {
-            System.out.println("Error while checking balance: " + e.getMessage());
-        }
-        return -1;  // Return -1 if account not found
-    }
-
-
-    public boolean deposit(int accountId, double amount) {
-        String sql = "UPDATE accounts SET balance = balance + ? WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setDouble(1, amount);
-            stmt.setInt(2, accountId);
-            stmt.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            System.out.println("Error while depositing money: " + e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean withdraw(int accountId, double amount) {
-        String sql = "UPDATE accounts SET balance = balance - ? WHERE id = ? AND balance >= ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setDouble(1, amount);
-            stmt.setInt(2, accountId);
-            stmt.setDouble(3, amount);
-            int rowsUpdated = stmt.executeUpdate();
-            return rowsUpdated > 0;
-        } catch (SQLException e) {
-            System.out.println("Error while withdrawing money: " + e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean deleteAccount(int accountId) {
-        String sql = "DELETE FROM accounts WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, accountId);
+            stmt.setInt(1, userId);
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            System.out.println("Error while deleting account: " + e.getMessage());
-            return false;
+            System.err.println("Error creating account: " + e.getMessage());
         }
+        return false;
+    }
+
+    public double checkBalance(int accountId) {
+        String sql = "SELECT balance FROM accounts WHERE account_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, accountId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("balance");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking balance: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public boolean transferMoney(int senderAccountId, int recipientAccountId, double amount) {
+        String sql = "UPDATE accounts SET balance = balance - ? WHERE account_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDouble(1, amount);
+            stmt.setInt(2, senderAccountId);
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+
+                sql = "UPDATE accounts SET balance = balance + ? WHERE account_id = ?";
+                try (PreparedStatement stmt2 = conn.prepareStatement(sql)) {
+                    stmt2.setDouble(1, amount);
+                    stmt2.setInt(2, recipientAccountId);
+                    int rowsAffected2 = stmt2.executeUpdate();
+                    return rowsAffected2 > 0;
+                } catch (SQLException e) {
+                    System.err.println("Error transfer money: " + e.getMessage());
+                    conn.rollback();
+                }
+            }
+            conn.rollback();
+
+        } catch (SQLException e) {
+            System.err.println("Error transfer money: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean applyForLoan(int userId, double amount, int interestRate, int term) {
+        String sql = "INSERT INTO loans (user_id, amount, interest_rate, term) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setDouble(2, amount);
+            stmt.setInt(3, interestRate);
+            stmt.setInt(4, term);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error applying for loan: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean insertTransaction(int accountId, String type, double amount, String category) {
+        String sql = "INSERT INTO transactions (account_id, type, amount, category, transaction_date) VALUES (?, ?, ?, ?, NOW())";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, accountId);
+            stmt.setString(2, type);
+            stmt.setDouble(3, amount);
+            stmt.setString(4, category);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error inserting transaction: " + e.getMessage());
+        }
+        return false;
     }
 }
