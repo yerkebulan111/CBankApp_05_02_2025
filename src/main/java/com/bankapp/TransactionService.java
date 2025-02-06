@@ -17,16 +17,14 @@ public class TransactionService {
         String insertTransactionSql = "INSERT INTO transactions (account_id, type, amount, transaction_type) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection()) {
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false);
 
-            // Update account balance
             try (PreparedStatement stmt = conn.prepareStatement(updateAccountSql)) {
                 stmt.setDouble(1, amount);
                 stmt.setInt(2, accountId);
                 stmt.executeUpdate();
             }
 
-            // Insert transaction log
             try (PreparedStatement stmt = conn.prepareStatement(insertTransactionSql)) {
                 stmt.setInt(1, accountId);
                 stmt.setString(2, "deposit");
@@ -35,7 +33,7 @@ public class TransactionService {
                 stmt.executeUpdate();
             }
 
-            conn.commit(); // Commit transaction
+            conn.commit();
             return true;
         } catch (SQLException e) {
             System.out.println("Error processing deposit: " + e.getMessage());
@@ -48,9 +46,8 @@ public class TransactionService {
         String insertTransactionSql = "INSERT INTO transactions (account_id, type, amount, transaction_type) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection()) {
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false);
 
-            // Update account balance
             try (PreparedStatement stmt = conn.prepareStatement(updateAccountSql)) {
                 stmt.setDouble(1, amount);
                 stmt.setInt(2, accountId);
@@ -62,7 +59,6 @@ public class TransactionService {
                 }
             }
 
-            // Insert transaction log
             try (PreparedStatement stmt = conn.prepareStatement(insertTransactionSql)) {
                 stmt.setInt(1, accountId);
                 stmt.setString(2, "withdrawal");
@@ -71,7 +67,7 @@ public class TransactionService {
                 stmt.executeUpdate();
             }
 
-            conn.commit(); // Commit transaction
+            conn.commit();
             return true;
         } catch (SQLException e) {
             System.out.println("Error processing withdrawal: " + e.getMessage());

@@ -14,7 +14,6 @@ public class BankApp {
     public static void main(String[] args) {
         while (true) {
             if (loggedInUserId == -1) {
-                // Main menu before logging in
                 System.out.println("--- Main Menu ---");
                 System.out.println("1. Register User");
                 System.out.println("2. Login User");
@@ -34,7 +33,7 @@ public class BankApp {
                         break;
                 }
             } else {
-                // Main menu after logging in
+
                 System.out.println("--- Account Management ---");
                 System.out.println("1. Deposit Money");
                 System.out.println("2. Withdraw Money");
