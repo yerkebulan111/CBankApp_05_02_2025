@@ -167,9 +167,9 @@ public class BankApp {
     private static void checkDepositBalance() {
         if (depositAccountDAO.depositAccountExists(loggedInUserId)) {
             double depositBalance = depositAccountDAO.getDepositBalance(loggedInUserId);
-            System.out.println("Ваш баланс депозитного счета: " + depositBalance);
+            System.out.println("Your deposit account balance: " + depositBalance);
         } else {
-            System.out.println("У вас нет открытого депозитного счета.");
+            System.out.println("You don't have an open deposit account..");
         }
     }
 
