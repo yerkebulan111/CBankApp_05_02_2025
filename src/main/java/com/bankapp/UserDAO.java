@@ -17,7 +17,6 @@ public class UserDAO {
             stmt.setString(2, password);
             stmt.executeUpdate();
 
-            // create an account for the user
             String getUserIdSql = "SELECT id FROM users WHERE username = ?";
             try (PreparedStatement userStmt = conn.prepareStatement(getUserIdSql)) {
                 userStmt.setString(1, username);

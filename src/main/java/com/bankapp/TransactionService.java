@@ -88,7 +88,7 @@ public class TransactionService {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
-            // getReceiverAccountSql:
+
             int receiverAccountId = -1;
             try (PreparedStatement stmt = conn.prepareStatement(getReceiverAccountSql)) {
                 stmt.setString(1, receiverUsername);
@@ -103,8 +103,6 @@ public class TransactionService {
                 return false;
             }
 
-            // to check if sender have enough money to send &
-            // updateSenderAccountSql:
             try (PreparedStatement stmt = conn.prepareStatement(updateSenderAccountSql)) {
                 stmt.setDouble(1, amount);
                 stmt.setInt(2, senderAccountId);
@@ -116,14 +114,12 @@ public class TransactionService {
                 }
             }
 
-            // updateReceiverAccountSql:
             try (PreparedStatement stmt = conn.prepareStatement(updateReceiverAccountSql)) {
                 stmt.setDouble(1, amount);
                 stmt.setInt(2, receiverAccountId);
                 stmt.executeUpdate();
             }
 
-            // create transaction for sender
             try (PreparedStatement stmt = conn.prepareStatement(insertTransactionSql)) {
                 stmt.setInt(1, senderAccountId);
                 stmt.setString(2, "transfer");
@@ -132,7 +128,6 @@ public class TransactionService {
                 stmt.executeUpdate();
             }
 
-            // create transaction for receiver
             try (PreparedStatement stmt = conn.prepareStatement(insertTransactionSql)) {
                 stmt.setInt(1, receiverAccountId);
                 stmt.setString(2, "transfer");
