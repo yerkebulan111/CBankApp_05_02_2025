@@ -94,4 +94,15 @@ public class DepositAccountDAO {
             System.out.println("Error updating the deposit account when logging in: " + e.getMessage());
         }
     }
+    public void updateDepositBalance(int userId, double newBalance) {
+        String sql = "UPDATE deposit_accounts SET deposit_balance = ? WHERE user_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDouble(1, newBalance);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -42,6 +42,7 @@ public class BankApp {
                 System.out.println("4. Transfer Money");
                 System.out.println("5. Logout");
                 System.out.println("6. Check Deposit Account Balance");
+                System.out.println("7. Transfer from Deposit to Main Account");
                 System.out.print("Choose an option: ");
                 int choice = scanner.nextInt();
                 scanner.nextLine();
@@ -64,6 +65,9 @@ public class BankApp {
                         break;
                     case 6:
                         checkDepositBalance();
+                        break;
+                    case 7:
+                        transferFromDeposit();
                         break;
                     default:
                         System.out.println("Invalid choice.");
@@ -167,6 +171,35 @@ public class BankApp {
         } else {
             System.out.println("У вас нет открытого депозитного счета.");
         }
+    }
+
+
+    private static void transferFromDeposit() {
+        if (!depositAccountDAO.depositAccountExists(loggedInUserId)) {
+            System.out.println("You don't have an deposit account.");
+            return;
+        }
+
+        System.out.print("Enter the amount to transfer from the deposit: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine();
+
+        double depositBalance = depositAccountDAO.getDepositBalance(loggedInUserId);
+        if (amount <= 0) {
+            System.out.println("The amount must be positive.");
+            return;
+        }
+        if (amount > depositBalance) {
+            System.out.println("Insufficient funds in the deposit account.");
+            return;
+        }
+
+
+        depositAccountDAO.updateDepositBalance(loggedInUserId, depositBalance - amount);
+        double mainBalance = userDAO.getBalance(loggedInUserId);
+        userDAO.updateBalance(loggedInUserId, mainBalance + amount);
+
+        System.out.println("The transfer was completed successfully. Your deposit has been withdrawn " + amount);
     }
 
 

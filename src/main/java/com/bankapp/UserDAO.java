@@ -80,4 +80,32 @@ public class UserDAO {
             return false;
         }
     }
+    public boolean updateBalance(int userId, double newBalance) {
+        String sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDouble(1, newBalance);
+            stmt.setInt(2, userId);
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            System.out.println("Error updating balance: " + e.getMessage());
+            return false;
+        }
+    }
+    public double getBalance(int userId) {
+        String sql = "SELECT balance FROM accounts WHERE user_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("balance");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching balance: " + e.getMessage());
+        }
+        return -1;
+    }
+
 }
