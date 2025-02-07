@@ -7,6 +7,8 @@ public class BankApp {
     private static final UserDAO userDAO = new UserDAO();
     private static final AccountDAO accountDAO = new AccountDAO();
     private static final TransactionService transactionService = new TransactionService(accountDAO);
+    private static final DepositAccountDAO depositAccountDAO = new DepositAccountDAO();
+
 
     private static int loggedInUserId = -1;
     private static int userAccountId = -1;
@@ -34,11 +36,12 @@ public class BankApp {
                 }
             } else {
                 System.out.println("--- Account Management ---");
-                System.out.println("1. Deposit Money");
-                System.out.println("2. Withdraw Money");
+                System.out.println("1. Get the Money");
+                System.out.println("2. Withdraw Money to Deposit");
                 System.out.println("3. Check Balance");
                 System.out.println("4. Transfer Money");
                 System.out.println("5. Logout");
+                System.out.println("6. Check Deposit Account Balance");
                 System.out.print("Choose an option: ");
                 int choice = scanner.nextInt();
                 scanner.nextLine();
@@ -58,6 +61,9 @@ public class BankApp {
                         break;
                     case 5:
                         logout();
+                        break;
+                    case 6:
+                        checkDepositBalance();
                         break;
                     default:
                         System.out.println("Invalid choice.");
@@ -93,6 +99,12 @@ public class BankApp {
             if (userAccountId != -1) {
                 System.out.println("Your account ID is: " + userAccountId);
             }
+
+            if (depositAccountDAO.depositAccountExists(loggedInUserId)) {
+                depositAccountDAO.incrementLoginCountAndApplyBonus(loggedInUserId);
+                double depBalance = depositAccountDAO.getDepositBalance(loggedInUserId);
+                System.out.println("Your deposit account balance is: " + depBalance);
+            }
         } else {
             System.out.println("Invalid username or password.");
         }
@@ -109,12 +121,33 @@ public class BankApp {
     }
 
     private static void withdrawMoney() {
-        System.out.print("Enter amount to withdraw: ");
+        System.out.print("Enter amount to Deposit: ");
         double amount = scanner.nextDouble();
-        if (transactionService.processWithdrawal(userAccountId, amount)) {
-            System.out.println("Withdrawal successful and transaction recorded!");
+        scanner.nextLine();
+        double mainBalance = accountDAO.checkBalance(userAccountId);
+        if (mainBalance < amount) {
+            System.out.println("Insufficient funds in your main account.");
+            return;
+        }
+        boolean withdrawn = accountDAO.withdraw(userAccountId, amount);
+        if (!withdrawn) {
+            System.out.println("Transfer failed.");
+            return;
+        }
+        if (!depositAccountDAO.depositAccountExists(loggedInUserId)) {
+            boolean opened = depositAccountDAO.openDepositAccount(loggedInUserId, amount);
+            if (opened) {
+                System.out.println("Deposit account opened with initial deposit: " + amount);
+            } else {
+                System.out.println("Failed to open deposit account.");
+            }
         } else {
-            System.out.println("Withdrawal failed.");
+            boolean deposited = depositAccountDAO.depositToDepositAccount(loggedInUserId, amount);
+            if (deposited) {
+                System.out.println("Deposit account credited with: " + amount);
+            } else {
+                System.out.println("Failed to credit deposit account.");
+            }
         }
     }
 
@@ -126,6 +159,18 @@ public class BankApp {
             System.out.println("Account not found.");
         }
     }
+
+    private static void checkDepositBalance() {
+        if (depositAccountDAO.depositAccountExists(loggedInUserId)) {
+            double depositBalance = depositAccountDAO.getDepositBalance(loggedInUserId);
+            System.out.println("Ваш баланс депозитного счета: " + depositBalance);
+        } else {
+            System.out.println("У вас нет открытого депозитного счета.");
+        }
+    }
+
+
+
 
     private static void transferMoney() {
         System.out.print("Enter receiver's username: ");

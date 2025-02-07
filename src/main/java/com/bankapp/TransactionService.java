@@ -71,7 +71,7 @@ public class TransactionService {
             conn.commit();
             return true;
         } catch (SQLException e) {
-            System.out.println("Error processing withdrawal: " + e.getMessage());
+            System.out.println("Error processing depositing money: " + e.getMessage());
             return false;
         }
     }
@@ -156,3 +156,4 @@ public class TransactionService {
 
 
 }
+//отправить на депозит - добавить счетчик логинов - логин +1 депозит - упал процент за месяц
