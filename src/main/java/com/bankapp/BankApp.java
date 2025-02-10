@@ -180,7 +180,7 @@ public class BankApp {
             return;
         }
 
-        System.out.print("Enter the amount to transfer from the deposit: ");
+        System.out.print("Enter the amount to transfer fro1m the deposit: ");
         double amount = scanner.nextDouble();
         scanner.nextLine();
 
