@@ -148,6 +148,38 @@ public class TransactionService {
             return false;
         }
     }
+    public void showTransactionHistory(int accountId) {
+        String sql = "SELECT t.account_id, t.type, t.amount, t.transaction_type, t.created_at, u.username " +
+                "FROM transactions t " +
+                "JOIN accounts a ON t.account_id = a.id " +
+                "JOIN users u ON a.user_id = u.id " +
+                "WHERE t.account_id = ? OR t.receiver_account_id = ? " +
+                "ORDER BY t.created_at DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, accountId);
+            stmt.setInt(2, accountId);
+            ResultSet rs = stmt.executeQuery();
+
+            System.out.println("--- Transaction History ---");
+            while (rs.next()) {
+                String type = rs.getString("type");
+                double amount = rs.getDouble("amount");
+                String transactionType = rs.getString("transaction_type");
+                String transactionDate = rs.getString("created_at");
+                String username = rs.getString("username");
+
+                if (transactionType.equals("credit")) {
+                    System.out.println("From: " + username + " - To: You - Amount: " + amount + "$"+ " - Date: " + transactionDate);
+                } else if (transactionType.equals("debit")) {
+                    System.out.println("From: You - To: " + username + " - Amount: " + amount + "$" +" - Date: " + transactionDate);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while fetching transaction history: " + e.getMessage());
+        }
+    }
 
 
 }

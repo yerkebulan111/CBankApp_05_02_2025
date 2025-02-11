@@ -1,7 +1,3 @@
-//открытия депозитного счёта (при первом переводе денег через withdrawMoney() для пользователя)
-//пополнения депозитного счёта
-//получения текущего баланса
-//начисления бонуса 10%, если баланс больше 1000тг
 package com.bankapp;
 
 import java.sql.Connection;
@@ -80,7 +76,7 @@ public class DepositAccountDAO {
                 loginCount++;
 
                 if (balance > 1000) {
-                    balance += balance * 0.1;
+                    balance += balance * 0.01;
                 }
 
                 try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {

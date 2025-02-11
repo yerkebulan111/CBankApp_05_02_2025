@@ -43,6 +43,7 @@ public class BankApp {
                 System.out.println("5. Logout");
                 System.out.println("6. Check Deposit Account Balance");
                 System.out.println("7. Transfer from Deposit to Main Account");
+                System.out.println("8. Show transaction history");
                 System.out.print("Choose an option: ");
                 int choice = scanner.nextInt();
                 scanner.nextLine();
@@ -68,6 +69,9 @@ public class BankApp {
                         break;
                     case 7:
                         transferFromDeposit();
+                        break;
+                    case 8:
+                        showTransactionHistory();
                         break;
                     default:
                         System.out.println("Invalid choice.");
@@ -222,5 +226,9 @@ public class BankApp {
         System.out.println("Logging out...");
         loggedInUserId = -1;
         userAccountId = -1;
+    }
+
+    private static void showTransactionHistory() {
+        transactionService.showTransactionHistory(userAccountId);
     }
 }
