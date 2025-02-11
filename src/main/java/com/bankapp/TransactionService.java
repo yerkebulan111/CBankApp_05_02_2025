@@ -187,9 +187,10 @@ public class TransactionService {
                 String receiverUsername = rs.getString("receiver_username");
 
                 if (transactionType.equals("credit")) {
-                    System.out.println("From: " + senderUsername + " - To: You - Amount: " + amount + " - Date: " + transactionDate);
-                } else if (transactionType.equals("debit")) {
-                    System.out.println("From: You - To: " + receiverUsername + " - Amount: " + amount + " - Date: " + transactionDate);
+                    System.out.println("From: " + senderUsername + " - To: You - Amount: " + amount + "$" + " - Date: " + transactionDate);
+                }
+                else  if (transactionType.equals("debit")) {
+                    System.out.println("From: You - To: " + receiverUsername + " - Amount: " + amount + "$" + " - Date: " + transactionDate);
                 }
             }
         } catch (SQLException e) {
