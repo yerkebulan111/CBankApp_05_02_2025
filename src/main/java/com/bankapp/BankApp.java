@@ -224,7 +224,6 @@ public class BankApp {
     }
 
 
-
     private static void loginUser() {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
