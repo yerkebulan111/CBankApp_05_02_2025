@@ -15,7 +15,6 @@ public class BankApp {
     private static final DepositAccountDAO depositAccountDAO = new DepositAccountDAO();
 
     private static String userRole;
-
     private static int loggedInUserId = -1;
     private static int userAccountId = -1;
 
