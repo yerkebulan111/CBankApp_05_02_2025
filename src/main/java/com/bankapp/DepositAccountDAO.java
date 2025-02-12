@@ -74,11 +74,9 @@ public class DepositAccountDAO {
                 double balance = rs.getDouble("deposit_balance");
                 int loginCount = rs.getInt("login_count");
                 loginCount++;
-
                 if (balance > 1000) {
                     balance += balance * 0.01;
                 }
-
                 try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
                     updateStmt.setDouble(1, balance);
                     updateStmt.setInt(2, loginCount);
@@ -90,6 +88,7 @@ public class DepositAccountDAO {
             System.out.println("Error updating the deposit account when logging in: " + e.getMessage());
         }
     }
+
     public void updateDepositBalance(int userId, double newBalance) {
         String sql = "UPDATE deposit_accounts SET deposit_balance = ? WHERE user_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -99,6 +98,33 @@ public class DepositAccountDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public String getFullDepositAccountDescription(int userId) {
+        String sql = "SELECT d.id AS depositAccountId, d.deposit_balance, d.login_count, u.id AS userId, u.username, u.email " +
+                "FROM deposit_accounts d JOIN users u ON d.user_id = u.id WHERE u.id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int depositAccountId = rs.getInt("depositAccountId");
+                double depositBalance = rs.getDouble("deposit_balance");
+                int loginCount = rs.getInt("login_count");
+                String username = rs.getString("username");
+                String email = rs.getString("email");
+                return "Deposit Account ID: " + depositAccountId +
+                        ", Deposit Balance: " + depositBalance +
+                        ", Login Count: " + loginCount +
+                        ", User ID: " + userId +
+                        ", Username: " + username +
+                        ", Email: " + email;
+            } else {
+                return "Deposit account not found for user id " + userId;
+            }
+        } catch (SQLException e) {
+            return "Error retrieving deposit account details: " + e.getMessage();
         }
     }
 }

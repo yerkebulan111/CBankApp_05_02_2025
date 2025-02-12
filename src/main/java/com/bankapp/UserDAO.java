@@ -12,11 +12,9 @@ public class UserDAO {
         String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setString(1, username);
             stmt.setString(2, password);
             stmt.executeUpdate();
-
             String getUserIdSql = "SELECT id FROM users WHERE username = ?";
             try (PreparedStatement userStmt = conn.prepareStatement(getUserIdSql)) {
                 userStmt.setString(1, username);
@@ -39,7 +37,6 @@ public class UserDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
-
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return true;
@@ -79,6 +76,7 @@ public class UserDAO {
             return false;
         }
     }
+
     public boolean updateBalance(int userId, double newBalance) {
         String sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -92,6 +90,7 @@ public class UserDAO {
             return false;
         }
     }
+
     public double getBalance(int userId) {
         String sql = "SELECT balance FROM accounts WHERE user_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -107,4 +106,26 @@ public class UserDAO {
         return -1;
     }
 
+    public String getFullUserDescription(int userId) {
+        String sql = "SELECT u.id AS userId, u.username, a.id AS accountId, a.balance, a.account_type " +
+                "FROM users u JOIN accounts a ON u.id = a.user_id WHERE u.id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int uid = rs.getInt("userId");
+                String username = rs.getString("username");
+                int accountId = rs.getInt("accountId");
+                double balance = rs.getDouble("balance");
+                String accountType = rs.getString("account_type");
+                return "User ID: " + uid + ", Username: " + username + ", Account ID: " + accountId +
+                        ", Balance: " + balance + ", Account Type: " + accountType;
+            } else {
+                return "User not found.";
+            }
+        } catch (SQLException e) {
+            return "Error retrieving user details: " + e.getMessage();
+        }
+    }
 }
