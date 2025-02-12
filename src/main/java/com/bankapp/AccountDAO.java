@@ -7,18 +7,7 @@ import java.sql.SQLException;
 
 public class AccountDAO {
 
-    public boolean createAccount(int userId) {
-        String sql = "INSERT INTO accounts (user_id, balance, account_type) VALUES (?, 0, 'debit')";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            stmt.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            System.out.println("Error while creating account: " + e.getMessage());
-            return false;
-        }
-    }
+
 
     public int getAccountIdByUserId(int userId) {
         String sql = "SELECT id FROM accounts WHERE user_id = ?";

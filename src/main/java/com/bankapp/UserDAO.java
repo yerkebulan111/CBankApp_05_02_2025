@@ -21,8 +21,7 @@ public class UserDAO {
                 ResultSet rs = userStmt.executeQuery();
                 if (rs.next()) {
                     int userId = rs.getInt("id");
-                    return accountDAO.createAccount(userId);
-                }
+                    AccountFactory.createAccount(userId);                }
             }
         } catch (SQLException e) {
             System.out.println("Error while registering user: " + e.getMessage());
