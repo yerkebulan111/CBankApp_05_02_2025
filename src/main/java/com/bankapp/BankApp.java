@@ -8,10 +8,12 @@ import java.util.Scanner;
 
 public class BankApp {
     private static final Scanner scanner = new Scanner(System.in);
+
     private static final UserDAO userDAO = new UserDAO();
     private static final AccountDAO accountDAO = new AccountDAO();
     private static final TransactionService transactionService = new TransactionService(accountDAO);
     private static final DepositAccountDAO depositAccountDAO = new DepositAccountDAO();
+
     private static String userRole;
 
     private static int loggedInUserId = -1;
@@ -173,14 +175,54 @@ public class BankApp {
     private static void registerUser() {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
+
+        // Username validation: Check if it's empty
+        if (username.isEmpty()) {
+            System.out.println("Username cannot be empty.");
+            return;
+        }
+
+        // Check if username already exists
+        if (isUsernameTaken(username)) {
+            System.out.println("Username is already taken. Please choose a different username.");
+            return;
+        }
+
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
+
+        // Password validation
+        if (password.isEmpty()) {
+            System.out.println("Password cannot be empty.");
+            return;
+        }
+
+        // Regular expression to check for a valid password:
+        // Password should be at least 8 characters long, include uppercase, lowercase, and a number.
+        String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
+        if (!password.matches(passwordPattern)) {
+            System.out.println("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit.");
+            return;
+        }
+
         System.out.print("Enter role (admin/manager/client): ");
-        String role = scanner.nextLine();  // New line for the role input
+        String role = scanner.nextLine();
+
+        // Role validation: Check if the role is valid
+        if (!(role.equals("admin") || role.equals("manager") || role.equals("client"))) {
+            System.out.println("Invalid role! Please choose between 'admin', 'manager', or 'client'.");
+            return;
+        }
 
         // Now call registerUser with username, password, and role
-        System.out.println(userDAO.registerUser(username, password, role) ? "User registered successfully!" : "Registration failed.");
+        boolean success = userDAO.registerUser(username, password, role);
+        if (success) {
+            System.out.println("User registered successfully!");
+        } else {
+            System.out.println("Registration failed.");
+        }
     }
+
 
 
     private static void loginUser() {
@@ -206,19 +248,27 @@ public class BankApp {
 
     private static void depositMoney() {
         executeAmountInput(amount -> {
-            System.out.println(transactionService.processDeposit(userAccountId, amount) ? "Deposit successful!" : "Deposit failed.");
+            if (amount <= 0) {
+                System.out.println("Deposit amount must be greater than 0.");
+            } else {
+                System.out.println(transactionService.processDeposit(userAccountId, amount) ? "Deposit successful!" : "Deposit failed.");
+            }
         });
     }
 
     private static void withdrawMoney() {
         executeAmountInput(amount -> {
-            double mainBalance = accountDAO.checkBalance(userAccountId);
-            if (mainBalance < amount) {
-                System.out.println("Insufficient funds.");
-            } else if (accountDAO.withdraw(userAccountId, amount)) {
-                System.out.println("Withdrawal successful.");
+            if (amount <= 0) {
+                System.out.println("Withdraw amount must be greater than 0.");
             } else {
-                System.out.println("Withdrawal failed.");
+                double mainBalance = accountDAO.checkBalance(userAccountId);
+                if (mainBalance < amount) {
+                    System.out.println("Insufficient funds.");
+                } else if (accountDAO.withdraw(userAccountId, amount)) {
+                    System.out.println("Withdrawal successful.");
+                } else {
+                    System.out.println("Withdrawal failed.");
+                }
             }
         });
     }
@@ -237,8 +287,13 @@ public class BankApp {
     private static void transferMoney() {
         System.out.print("Enter receiver's username: ");
         String receiverUsername = scanner.nextLine();
+
         executeAmountInput(amount -> {
-            System.out.println(transactionService.transferMoney(userAccountId, receiverUsername, amount) ? "Transfer successful!" : "Transfer failed.");
+            if (amount <= 0) {
+                System.out.println("Transfer amount must be greater than 0.");
+            } else {
+                System.out.println(transactionService.transferMoney(userAccountId, receiverUsername, amount) ? "Transfer successful!" : "Transfer failed.");
+            }
         });
     }
 
@@ -256,7 +311,7 @@ public class BankApp {
             return;
         }
 
-        System.out.print("Enter the amount to transfer fro1m the deposit: ");
+        System.out.print("Enter the amount to transfer from the deposit: ");
         double amount = scanner.nextDouble();
         scanner.nextLine();
 
@@ -386,8 +441,23 @@ public class BankApp {
     }
 
 
-
     private static void showTransactionHistory() {
         transactionService.showTransactionHistory(userAccountId);
+    }
+
+
+    private static boolean isUsernameTaken(String username) {
+        String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;  // If count > 0, it means the username is taken
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking username: " + e.getMessage());
+        }
+        return false;
     }
 }

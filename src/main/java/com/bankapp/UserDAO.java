@@ -152,5 +152,18 @@ public class UserDAO {
         }
     }
 
+    public boolean isUsernameTaken(String username) {
+        String sql = "SELECT id FROM users WHERE username = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();  // If there's a record with the username, it's taken
+        } catch (SQLException e) {
+            System.out.println("Error checking if username is taken: " + e.getMessage());
+            return false;
+        }
+    }
+
 
 }
