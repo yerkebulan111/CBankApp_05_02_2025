@@ -43,30 +43,30 @@ public class BankApp {
     }
 
     private static void showAccountMenu() {
-        // Check if user is a client, manager, or admin and display relevant menu
+
         if (userRole.equals("client")) {
-            // Client menu
+
             System.out.println("--- Client Account Management ---");
             System.out.println("1. Get the Money");
             System.out.println("2. Withdraw Money to Deposit");
             System.out.println("3. Check Balance");
             System.out.println("4. Transfer Money");
             System.out.println("5. Logout");
-            System.out.println("6. Check Deposit Account Balance"); // Added
-            System.out.println("7. Transfer from Deposit to Main Account"); // Added
+            System.out.println("6. Check Deposit Account Balance");
+            System.out.println("7. Transfer from Deposit to Main Account");
             System.out.println("8. Show Transaction History");
 
-            // Handle Client's menu choice
+
             handleClientMenu();
         } else if (userRole.equals("manager")) {
-            // Manager menu
+
             System.out.println("--- Manager Account Management ---");
             System.out.println("1. View All Users");
             System.out.println("2. Login to Client Account");
             System.out.println("3. Edit Client Information");
             System.out.println("4. Logout");
 
-            // Handle Manager's menu choice
+
             handleManagerMenu();
         } else if (userRole.equals("admin")) {
             System.out.println("--- Admin Management ---");
@@ -76,42 +76,42 @@ public class BankApp {
             System.out.println("4. Delete User");
             System.out.println("5. Logout");
 
-            // Handle Admin's menu choice
+
             handleAdminMenu();
         } else {
             System.out.println("Invalid role! Please contact support.");
         }
     }
 
-    // Handle Client Menu
+
     private static void handleClientMenu() {
         System.out.print("Choose an option: ");
         int choice = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         switch (choice) {
             case 1:
-                depositMoney(); // Existing method for client
+                depositMoney();
                 break;
             case 2:
-                withdrawMoney(); // Existing method for client
+                withdrawMoney();
                 break;
             case 3:
-                checkBalance(); // Existing method for client
+                checkBalance();
                 break;
             case 4:
-                transferMoney(); // Existing method for client
+                transferMoney();
                 break;
             case 5:
-                logout(); // Existing method for logout
+                logout();
                 break;
             case 6:
-                checkDepositBalance(); // Existing method
+                checkDepositBalance();
                 break;
             case 7:
-                transferFromDeposit(); // Existing method
+                transferFromDeposit();
                 break;
             case 8:
-                showTransactionHistory(); // Existing method
+                showTransactionHistory();
                 break;
             default:
                 System.out.println("Invalid choice.");
@@ -119,23 +119,23 @@ public class BankApp {
         }
     }
 
-    // Handle Manager Menu
+
     private static void handleManagerMenu() {
         System.out.print("Choose an option: ");
         int choice = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         switch (choice) {
             case 1:
-                viewAllUsers(); // Implement this method
+                viewAllUsers();
                 break;
             case 2:
-                loginToClientAccount(); // Implement this method
+                loginToClientAccount();
                 break;
             case 3:
-                editClientInformation(); // Implement this method
+                editClientInformation();
                 break;
             case 4:
-                logout(); // Existing method for logout
+                logout();
                 break;
             default:
                 System.out.println("Invalid choice.");
@@ -143,23 +143,23 @@ public class BankApp {
         }
     }
 
-    // Handle Admin Menu (if applicable)
+
     private static void handleAdminMenu() {
         System.out.print("Choose an option: ");
         int choice = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         switch (choice) {
             case 1:
-                viewAllUsers(); // function for viewing all users
+                viewAllUsers();
                 break;
             case 2:
-                loginToClientAccount(); // function for logging into client account
+                loginToClientAccount();
                 break;
             case 3:
-                editClientInformation(); // function for editing client information
+                editClientInformation();
                 break;
             case 4:
-                deleteUser(); // function for deleting a user
+                deleteUser();
                 break;
             case 5:
                 logout();
@@ -175,13 +175,13 @@ public class BankApp {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
 
-        // Username validation: Check if it's empty
+
         if (username.isEmpty()) {
             System.out.println("Username cannot be empty.");
             return;
         }
 
-        // Check if username already exists
+
         if (isUsernameTaken(username)) {
             System.out.println("Username is already taken. Please choose a different username.");
             return;
@@ -190,14 +190,14 @@ public class BankApp {
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        // Password validation
+
         if (password.isEmpty()) {
             System.out.println("Password cannot be empty.");
             return;
         }
 
-        // Regular expression to check for a valid password:
-        // Password should be at least 8 characters long, include uppercase, lowercase, and a number.
+
+
         String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
         if (!password.matches(passwordPattern)) {
             System.out.println("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit.");
@@ -207,13 +207,13 @@ public class BankApp {
         System.out.print("Enter role (admin/manager/client): ");
         String role = scanner.nextLine();
 
-        // Role validation: Check if the role is valid
+
         if (!(role.equals("admin") || role.equals("manager") || role.equals("client"))) {
             System.out.println("Invalid role! Please choose between 'admin', 'manager', or 'client'.");
             return;
         }
 
-        // Now call registerUser with username, password, and role
+
         boolean success = userDAO.registerUser(username, password, role);
         if (success) {
             System.out.println("User registered successfully!");
@@ -234,9 +234,9 @@ public class BankApp {
             loggedInUserId = userDAO.getUserId(username);
             userAccountId = accountDAO.getAccountIdByUserId(loggedInUserId);
 
-            // Fetch the user role and assign it
-            userRole = userDAO.getUserRole(username);  // Set userRole
-            System.out.println("You are logged in as: " + userRole);  // Optional: print role for debugging
+
+            userRole = userDAO.getUserRole(username);
+            System.out.println("You are logged in as: " + userRole);
         } else {
             System.out.println("Invalid username or password.");
         }
@@ -353,7 +353,7 @@ public class BankApp {
     private static void deleteUser() {
         System.out.print("Enter username of the user to delete: ");
         String username = scanner.nextLine();
-        boolean isDeleted = userDAO.deleteUser(username); // you can use the same deleteUser method in UserDAO
+        boolean isDeleted = userDAO.deleteUser(username);
         if (isDeleted) {
             System.out.println("User deleted successfully.");
         } else {
@@ -373,11 +373,11 @@ public class BankApp {
             System.out.println("--- All Users ---");
             while (rs.next()) {
                 String username = rs.getString("username");
-                String password = rs.getString("password"); // You can choose to hide the password for security reasons
+                String password = rs.getString("password");
                 double balance = rs.getDouble("balance");
                 String accountType = rs.getString("account_type");
 
-                // Print the user details
+
                 System.out.println("Username: " + username + ", Password: " + password + ", Balance: " + balance + ", Account Type: " + accountType);
             }
 
@@ -390,7 +390,7 @@ public class BankApp {
         System.out.print("Enter client's username: ");
         String clientUsername = scanner.nextLine();
 
-        // Check if the client exists
+
         int clientId = userDAO.getUserId(clientUsername);
 
         if (clientId == -1) {
@@ -406,10 +406,10 @@ public class BankApp {
         System.out.println("3. Check Balance");
         System.out.println("4. Transfer Money");
         System.out.println("5. Logout");
-        System.out.println("6. Check Deposit Account Balance"); // Added
-        System.out.println("7. Transfer from Deposit to Main Account"); // Added
+        System.out.println("6. Check Deposit Account Balance");
+        System.out.println("7. Transfer from Deposit to Main Account");
         System.out.println("8. Show Transaction History");
-        // Option to go to client account management
+
         handleClientMenu();
     }
 
@@ -417,7 +417,7 @@ public class BankApp {
         System.out.print("Enter client's username to edit: ");
         String clientUsername = scanner.nextLine();
 
-        // Check if the client exists
+
         int clientId = userDAO.getUserId(clientUsername);
 
         if (clientId == -1) {
@@ -425,11 +425,11 @@ public class BankApp {
             return;
         }
 
-        // Ask for new password
+
         System.out.print("Enter new password for " + clientUsername + ": ");
         String newPassword = scanner.nextLine();
 
-        // Update the password in the database
+
         boolean success = userDAO.updatePassword(clientId, newPassword);
         if (success) {
             System.out.println("Password updated successfully.");
@@ -451,7 +451,7 @@ public class BankApp {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1) > 0;  // If count > 0, it means the username is taken
+                return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
             System.out.println("Error checking username: " + e.getMessage());

@@ -14,7 +14,7 @@ public class UserDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
-            stmt.setString(3, role.toLowerCase()); // Ensures lowercase role storage
+            stmt.setString(3, role.toLowerCase());
             stmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -135,7 +135,7 @@ public class UserDAO {
         } catch (SQLException e) {
             System.out.println("Error fetching user role: " + e.getMessage());
         }
-        return "client";  // Default role if not found, assuming client as default
+        return "client";
     }
 
     public boolean updatePassword(int userId, String newPassword) {
@@ -158,7 +158,7 @@ public class UserDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
-            return rs.next();  // If there's a record with the username, it's taken
+            return rs.next();
         } catch (SQLException e) {
             System.out.println("Error checking if username is taken: " + e.getMessage());
             return false;
